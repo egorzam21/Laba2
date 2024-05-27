@@ -1,0 +1,68 @@
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Функция для вычисления расстояния от точки до прямой
+double distanceToLine(double A, double B, double C, double x, double y) {
+    return abs(A * x + B * y + C) / sqrt(A * A + B * B);
+}
+
+// Функция для вычисления расстояния между двумя точками
+double distanceBetweenPoints(double x1, double y1, double x2, double y2) {
+    return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+}
+
+// Функция для вычисления угла между прямыми
+double angleBetweenLines(double A1, double B1, double A2, double B2) {
+    double tanTheta = abs((A1 * B2 - A2 * B1) / (A1 * A2 + B1 * B2));
+    return atan(tanTheta);
+}
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+    srand(time(0));
+
+    // Генерация случайных параметров прямых и координат точки
+    double A1 = rand() % 100 - 50;
+    double B1 = rand() % 100 - 50;
+    double C1 = rand() % 100 - 50;
+    double A2 = rand() % 100 - 50;
+    double B2 = rand() % 100 - 50;
+    double C2 = rand() % 100 - 50;
+    double x = rand() % 100 - 50;
+    double y = rand() % 100 - 50;
+
+    cout << "Первая прямая: " << A1 << "x + " << B1 << "y + " << C1 << " = 0" << endl;
+    cout << "Вторая прямая: " << A2 << "x + " << B2 << "y + " << C2 << " = 0" << endl;
+    cout << "Точка: (" << x << ", " << y << ")" << endl;
+
+    // Расстояния от точки до прямых
+    double d1 = distanceToLine(A1, B1, C1, x, y);
+    double d2 = distanceToLine(A2, B2, C2, x, y);
+    cout << "Расстояние от точки до первой прямой: " << d1 << endl;
+    cout << "Расстояние от точки до второй прямой: " << d2 << endl;
+
+    // Координаты точки пересечения прямых
+    double dot = A1 * B2 - A2 * B1;
+    if (dot == 0) {
+        cout << "Прямые параллельны или совпадают." << endl;
+    }
+    else {
+        double x_dot = (B2 * C1 - B1 * C2) / dot;
+        double y_dot = (A1 * C2 - A2 * C1) / dot;
+        cout << "Точка пересечения прямых: (" << x_dot << ", " << y_dot << ")" << endl;
+
+        // Расстояние от заданной точки до точки пересечения прямых
+        double d3 = distanceBetweenPoints(x, y, x_dot, y_dot);
+        cout << "Расстояние от заданной точки до точки пересечения прямых: " << d3 << endl;
+    }
+
+    // Угол между прямыми
+    double angle = angleBetweenLines(A1, B1, A2, B2);
+    cout << "Угол между прямыми: " << angle << " радиан" << endl;
+
+    return 0;
+}
