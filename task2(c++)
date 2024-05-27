@@ -1,0 +1,130 @@
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+struct Vec3 {
+    double x, y, z;
+};
+
+// Векторные операции
+Vec3 add(Vec3 a, Vec3 b) {
+    return { a.x + b.x, a.y + b.y, a.z + b.z };
+}
+
+Vec3 sub(Vec3 a, Vec3 b) {
+    return { a.x - b.x, a.y - b.y, a.z - b.z };
+}
+
+Vec3 mul(Vec3 a, double s) {
+    return { a.x * s, a.y * s, a.z * s };
+}
+
+double dot(Vec3 a, Vec3 b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+Vec3 cross(Vec3 a, Vec3 b) {
+    return { a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x };
+}
+
+double length(Vec3 v) {
+    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+// Угол между векторами (прямыми)
+double angle(Vec3 b1, Vec3 b2) {
+    return acos(dot(b1, b2) / (length(b1) * length(b2)));
+}
+
+// Проверка параллельности
+bool isParallel(Vec3 b1, Vec3 b2) {
+    return length(cross(b1, b2)) < 1e-6;
+}
+
+// Расстояние от точки до прямой
+double distToLine(Vec3 p, Vec3 a, Vec3 b) {
+    Vec3 ap = sub(p, a);
+    return length(cross(ap, b)) / length(b);
+}
+
+// Расстояние между параллельными прямыми
+double distBetweenParallelLines(Vec3 a1, Vec3 a2, Vec3 b) {
+    Vec3 a1a2 = sub(a2, a1);
+    return length(cross(a1a2, b)) / length(b);
+}
+
+// Поиск точки пересечения прямых
+bool intersect(Vec3 a1, Vec3 b1, Vec3 a2, Vec3 b2, Vec3& intPoint) {
+    Vec3 a2a1 = sub(a2, a1);
+    Vec3 b2xb1 = cross(b2, b1);
+    double denom = length(b2xb1);
+
+    if (denom < 1e-6) return false; // Прямые параллельны или совпадают
+
+    double t = dot(cross(a2a1, b2), b2xb1) / denom;
+    intPoint = add(a1, mul(b1, t));
+    return true;
+}
+
+// Расстояние между двумя точками
+double distBetweenPoints(Vec3 p1, Vec3 p2) {
+    return length(sub(p1, p2));
+}
+
+int main() {
+    srand(time(0));
+    setlocale(LC_ALL, "Russian");
+
+    // Генерация случайных параметров прямых и координат точки
+    Vec3 a1 = { rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50 };
+    Vec3 b1 = { rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50 };
+    Vec3 a2 = { rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50 };
+    Vec3 b2 = { rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50 };
+    Vec3 point = { rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50 };
+
+    cout << "Первая прямая: (" << a1.x << ", " << a1.y << ", " << a1.z << ") + t("
+        << b1.x << ", " << b1.y << ", " << b1.z << ")" << endl;
+    cout << "Вторая прямая: (" << a2.x << ", " << a2.y << ", " << a2.z << ") + u("
+        << b2.x << ", " << b2.y << ", " << b2.z << ")" << endl;
+    cout << "Точка: (" << point.x << ", " << point.y << ", " << point.z << ")" << endl;
+
+    // Угол между прямыми
+    double ang = angle(b1, b2);
+    cout << "Угол между прямыми: " << ang << " радиан" << endl;
+
+    // Проверка на параллельность
+    if (isParallel(b1, b2)) {
+        cout << "Прямые параллельны." << endl;
+        double dist = distBetweenParallelLines(a1, a2, b1);
+        cout << "Расстояние между параллельными прямыми: " << dist << endl;
+    }
+    else {
+        // Поиск точки пересечения прямых
+        Vec3 intPoint;
+        if (intersect(a1, b1, a2, b2, intPoint)) {
+            cout << "Прямые пересекаются в точке: (" << intPoint.x << ", "
+                << intPoint.y << ", " << intPoint.z << ")" << endl;
+
+            // Расстояние от заданной точки до точки пересечения прямых
+            double distToInt = distBetweenPoints(point, intPoint);
+            cout << "Расстояние от заданной точки до точки пересечения прямых: "
+                << distToInt << endl;
+        }
+        else {
+            cout << "Прямые не пересекаются." << endl;
+        }
+    }
+
+    // Расстояние от точки до первой прямой
+    double dist1 = distToLine(point, a1, b1);
+    cout << "Расстояние от точки до первой прямой: " << dist1 << endl;
+
+    // Расстояние от точки до второй прямой
+    double dist2 = distToLine(point, a2, b2);
+    cout << "Расстояние от точки до второй прямой: " << dist2 << endl;
+
+    return 0;
+}
